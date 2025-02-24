@@ -1,4 +1,3 @@
-import styled from 'styled-components'
 import { Box, Container, Grid } from '@mui/material'
 import { BannerImage } from '@/components'
 
