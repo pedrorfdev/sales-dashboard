@@ -39,7 +39,7 @@ function Profile() {
   } = usePut<ProfileEditableData>('profile/update')
 
   const { deleteData: profileDeleteData, loading: profileDeleteLoading } =
-    useDelete('profile/update')
+    useDelete('profile/delete')
 
   const inputs: InputProps[] = [
     { name: 'name', type: 'text', placeholder: 'Nome', required: true },
