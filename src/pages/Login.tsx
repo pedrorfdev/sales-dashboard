@@ -6,9 +6,63 @@ import {
   StyledH1,
   StyledP,
 } from '@/components'
-import { pxToRem } from '@/utils'
+import { jwtExpirationDateConverter, pxToRem } from '@/utils'
+import { useFormValidation, usePost } from '@/hooks'
+import { DecodedJWT, LoginData, LoginPostData, MessageProps } from '@/types'
+import { ChangeEvent, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
+import Cookies from 'js-cookie'
 
 function Login() {
+  const navigate = useNavigate()
+
+  const inputs = [
+    { type: 'email', placeholder: 'Email' },
+    { type: 'password', placeholder: 'Senha' },
+  ]
+
+  const { data, loading, error, postData } = usePost<LoginData, LoginPostData>(
+    'login'
+  )
+  const { formValues, formValid, handleChange } = useFormValidation(inputs)
+
+  const handleMessage = (): MessageProps => {
+    if (!error) return { msg: '', type: 'success' }
+    switch (error) {
+      case 401:
+        return {
+          msg: 'Email e/ou senha inválidos',
+          type: 'error',
+        }
+      default:
+        return {
+          msg: 'Não foi possível realizar a operação. Entre em contato com nosso suporte',
+          type: 'error',
+        }
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await postData({
+      email: String(formValues[0]),
+      password: String(formValues[1]),
+    })
+  }
+
+  useEffect(() => {
+    if (data?.jwt_token) {
+      const decoded: DecodedJWT = jwtDecode(data?.jwt_token)
+      Cookies.set('Authorization', data?.jwt_token),
+        {
+          expires: jwtExpirationDateConverter(decoded.exp),
+          secure: true,
+        }
+    }
+    if (Cookies.get('Authorization')) navigate('/home')
+  }, [data, navigate])
+
   return (
     <>
       <Box>
@@ -28,17 +82,23 @@ function Login() {
                 <StyledP>Digite sua senha e email para logar</StyledP>
               </Box>
               <FormComponent
-                inputs={[
-                  { type: 'email', placeholder: 'Email' },
-                  { type: 'password', placeholder: 'Senha' },
-                ]}
+                inputs={inputs.map((input, index) => ({
+                  type: input.type,
+                  placeholder: input.placeholder,
+                  value: formValues[index] || '',
+                  onChange: (e: ChangeEvent<HTMLInputElement>) =>
+                    handleChange(index, (e.target as HTMLInputElement).value),
+                }))}
                 buttons={[
-                  { className: 'primary', type: 'submit', children: 'Login' },
+                  {
+                    className: 'primary',
+                    disabled: !formValid || loading,
+                    type: 'submit',
+                    onClick: handleSubmit,
+                    children: loading ? 'Aguarde...' : 'Login',
+                  },
                 ]}
-                message={{
-                  msg: 'Sucesso!',
-                  type: 'success',
-                }}
+                message={handleMessage()}
               />
             </Container>
           </Grid>
