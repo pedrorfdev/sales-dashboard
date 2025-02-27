@@ -89,7 +89,12 @@ function Home() {
                         Meta do mês
                       </StyledH2>
 
-                      <StyledH3 size={40} lineheight={40} className="mb-1">
+                      <StyledH3
+                        size={40}
+                        lineheight={40}
+                        className="mb-1"
+                        color="white"
+                      >
                         {currencyConverter(highlightsData[1].value)}
                       </StyledH3>
 
