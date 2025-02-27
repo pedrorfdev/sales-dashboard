@@ -140,10 +140,6 @@ function Registration() {
                     children: email ? 'Enviar' : 'Próximo',
                   },
                 ]}
-                message={{
-                  msg: 'Erro!',
-                  type: 'error',
-                }}
               />
             </Container>
           </Grid>
