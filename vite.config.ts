@@ -9,6 +9,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['@emotion/styled'],
   },
+  server: { host: true },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
